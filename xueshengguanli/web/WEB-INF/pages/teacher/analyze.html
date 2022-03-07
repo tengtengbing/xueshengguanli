@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>成绩分析</title>
+    <link rel="stylesheet" href="${s.base}/res/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="${s.base}/res/css/public.css" media="all" />
+    <link rel="stylesheet" href="../../../res/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="../../../res/css/public.css" media="all" />
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/4.8.0/echarts-en.common.js" rel="external nofollow" ></script>
+</head>
+<body >
+
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 600px;height:400px;margin: auto" ></div>
+<a href="courseList.html" class="layui-btn" target="_blank" style="float: right;background-color: #2F4056">关闭</a>
+>
+<script type="text/javascript" src="../../../res/layui/layui.js"></script>
+<script type="text/javascript" src="${s.base}/res/layui/layui.js"></script>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  <display-name></display-name>	
+<!--欢迎页、servlet、filter等的,比如我们上面的各种配置文件，不是写好放在那里就能够使用的，
+我们需要有监听器，将监听到的信息转发给各个类中<!-->
+	<!-- 设置项目首页
+	定义了首页文件，也就是用户直接输入域名时跳转的页面 如http://localhost:8080/-->
+    <welcome-file-list>
+    	<welcome-file>/login/loginPage.html</welcome-file>
+    </welcome-file-list>
+    <!-- 设置404页 错误页面 -->
+    <error-page>
+    	<error-code>404</error-code>
+    	<location>/404.html</location>
+	</error-page>
+    
+    <!-- 加载spring bean
+     配置加载类路径的配置文件 classpath:applicationContext.xml-->
+    <context-param>    
+        <param-name>contextConfigLocation</param-name>    
+        <param-value>classpath:applicationContext.xml</param-value>    
+    </context-param>
+<!--   Listener元素指出事件监听程序类 <!-->
+    <listener>
+        <!--用来设定Listener接口-->
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>    
+    </listener>    
+    
+    <!-- 编码过滤器
+    将一个名字与一个实现javaxs.servlet.Filter接口的类相关联。-->
+    <filter>
+        <!--指定filter的名字-->
+        <filter-name>encodingFilter</filter-name>
+        <!--定义filter的类的名称-->
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <!--设置是否启用异步支持-->
+        <async-supported>true</async-supported>
+        <init-param>
+            <!--参数名称-->
+            <param-name>encoding</param-name>
+            <!--参数值-->
+            <param-value>UTF-8</param-value>
+        </init-param>    
+    </filter>
+    <!--用来定义filter所对应的URL-->
+    <filter-mapping>
+        <!--指定对应filter的名字-->
+        <filter-name>encodingFilter</filter-name>
+        <!--指定filter所对应的URL-->
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+        
+    <!-- Spring MVC servlet
+    前端控制器（加载classpath:springmvc.xml 服务器启动创建servlet）-->
+    <servlet>
+    <!--指定servlet的名称 <!-->
+        <servlet-name>SpringMVC</servlet-name>
+    <!--指定servlet的类名称<!-->
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+<!--配置初始化参数，创建完DispatcherServlet对象，加载springmvc.xml配置文件<!-->
+        <init-param>    
+            <param-name>contextConfigLocation</param-name>    
+            <param-value>classpath:spring-mvc.xml</param-value>    
+        </init-param>
+        <!-- 服务器启动的时候，让DispatcherServlet对象创建 -->
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>    
+    </servlet>
+<!-- 将URL模式映射到某个Servlet，即该Servlet处理的URL。 <!-->
+    <servlet-mapping>
+<!--   Servlet的名字，与<servlet>元素中声明的名字一致     <-->
+        <servlet-name>SpringMVC</servlet-name>
+<!--   指定相对于Servlet的URL的路径。该路径相对于web应用程序上下文的根路径。     <!-->
+        <url-pattern>*.html</url-pattern>
+        <!-- 修改为/*可以省除后缀名，达到rest风格的目的 -->
+    </servlet-mapping>
+</web-app>

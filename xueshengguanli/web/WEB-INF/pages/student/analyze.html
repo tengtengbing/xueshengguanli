@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>成绩分析</title>
+    <link rel="stylesheet" href="../../res/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="../../res/css/public.css" media="all" />
+    <link rel="stylesheet" href="${s.base}/res/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="${s.base}/res/css/public.css" media="all" />
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/4.8.0/echarts-en.common.js" rel="external nofollow" ></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 600px;height:400px;margin: auto" ></div>
+<a href="courseList.html" class="layui-btn" target="_blank" style="float: right;background-color: #2F4056">关闭</a>
+
+<script type="text/javascript" src="../../res/layui/layui.js"></script>
+<script type="text/javascript" src="${s.base}/res/layui/layui.js"></script>
+<script type="text/javascript">
+    function analyze() {
+        //向后台发送请求
+        $.ajax({
+            type: "get",
+            url: "/student/grade/analyzeScore",
+            data: "",
+            success: function (result) {
+                if (result.success == true) {
+                }
+            }
+        })
+    }
+
+</script>
+
+</body>
+</html>
