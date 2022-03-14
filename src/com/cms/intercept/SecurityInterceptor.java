@@ -21,8 +21,9 @@ public class SecurityInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
-		
-		HttpSession session = request.getSession();
+
+		return true;
+		/*HttpSession session = request.getSession();
 		User user = (User) session.getAttribute(StrUtil.USER);
         if (user == null) {
             response.sendRedirect(request.getContextPath()+"/");
@@ -35,7 +36,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
         	}
         	response.sendRedirect(request.getContextPath()+"/404");
         }
-        return false;
+        return false;*/
 	}
 
 	@Override

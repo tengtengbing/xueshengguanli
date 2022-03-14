@@ -24,6 +24,8 @@ public interface CourseDao {
 
 	int getTotalItemsCountByTid(String id);
 
+	int getTotalItemsCountByTid2(String id);
+
 	List<Course> getCourseListByTid(Pagination<Course> page, String id);
 
 	int getTotalItemsCountBySid(int isAll, String searchKey, String id);

@@ -5,8 +5,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import com.alibaba.fastjson.JSONObject;
+import com.cms.vo.CourseScoreAnalyseVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -60,7 +63,8 @@ public class CourseController {
 		
 		Pagination<Course> page = new Pagination<Course>();
 		Teacher t = (Teacher) session.getAttribute(StrUtil.USER);
-		page.setTotalItemsCount(courseService.getTotalItemsCountByTid(t.getId()));
+		//包含未结课的
+		page.setTotalItemsCount(courseService.getTotalItemsCountByTid2(t.getId()));
 		page.setPageSize(nums);
 		page.setPageNum(curr);
 		
@@ -146,6 +150,14 @@ public class CourseController {
 		if (res > 0) return StrUtil.RESULT_TRUE;
 		return "操作失败！";
 	}
+
+	@ResponseBody
+	@RequestMapping(value="/revoke")
+	public String revoke(Course course) {
+		int res = courseService.revokeCourse(course);
+		if (res > 0) return StrUtil.RESULT_TRUE;
+		return "操作失败！";
+	}
 	
 	@ResponseBody
 	@RequestMapping(value="/delete")
@@ -176,5 +188,14 @@ public class CourseController {
 			return "删除失败！参数出错！";//
 		}
 		return "删除失败！";
+	}
+
+	@ResponseBody
+	@GetMapping(value = "findCourseScoreAnalyse")
+	public String findCourseScoreAnalyse(@RequestParam Integer courseId){
+		CourseScoreAnalyseVO courseScoreAnalyse = this.courseService.findCourseScoreAnalyse(courseId);
+		String result = JSONObject.toJSONString(courseScoreAnalyse);
+		System.out.println("result:"  + result);
+		return result;
 	}
 }

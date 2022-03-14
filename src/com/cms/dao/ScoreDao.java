@@ -32,4 +32,6 @@ public interface ScoreDao {
 
 	List<ScoreVo> getScoreListForExport(Pagination<ScoreVo> page,
                                         ScoreVo scoreVo);
+
+    List<ScoreVo> getCourseScoreList(Integer courseId);
 }

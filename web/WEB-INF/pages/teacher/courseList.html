@@ -7,17 +7,29 @@
 	<link rel="stylesheet" href="${s.base}/res/css/public.css" media="all" />
 </head>
 <body class="childrenBody">
+
+<div id="speedChart" style="display: none;">
+	<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+	<div id="speedChartMain" style="width: 600px; height: 400px;"></div>
+</div>
+
 <form class="layui-form">
 	<table id="courseList" lay-filter="courseList" ></table>
 	<!--操作-->
 	<script type="text/html" id="courseListBar">
-		<a class="layui-btn layui-btn-xs" lay-event="edit">结束课程</a>
+		{{#  if(d.complete == 0){ }}
+			<a class="layui-btn layui-btn-xs" style = "background-color: red" lay-event="end">结束课程</a>
+		{{# } }}
+		{{#  if(d.complete == 1){ }}
+		    <a class="layui-btn layui-btn-xs" style = "background-color: red"  lay-event="revoke">撤回课程</a>
+			<a class="layui-btn layui-btn-xs" lay-event="analyse">成绩分析</a>
+		{{# } }}
 	</script>
-	
 </form>
 <script type="text/javascript" src="${s.base}/res/layui/layui.js"></script>
+<script type="text/javascript" src="${s.base}/res/js/echarts.min.js"></script>
 <script type="text/javascript">
-layui.use(['layer','table'],function(){
+	layui.use(['layer','table'],function(){
 	var $ = $ = layui.jquery;
     //courseList列表
     tableIns = layui.table.render({
@@ -44,31 +56,158 @@ layui.use(['layer','table'],function(){
             {field: "testMode", title: "考核方式", minWidth:100, align:"center"},
             {field: "studentNum", title: "最大人数", minWidth:100, align:"center"},
             {field: "choiceNum", title: "已选（人）", minWidth:100, align:"center"},
-        	{title: "操作", width:100, templet:"#courseListBar",fixed:"right",align:"center"}
+			{field: "complete", title: "是否结课", minWidth:100, align:"center", templet:function (c){
+					console.log("c: " + c.complete);
+					if(c.complete == 1 || c.complete == '1'){
+						return "已结课";
+					} else {
+						return "未结课";
+					}
+				}
+			},
+        	{title: "操作", width:200, templet:"#courseListBar",fixed:"right",align:"center"}
         ]]
     });
     
-    
      //列表操作
     layui.table.on("tool(courseList)", function(obj){
-        layer.confirm('请确保结束课程前已提交学生成绩！确定结束此课程？', {icon: 3, title: '提示信息'}, function (index) {
-	        var data = obj.data;
-	       	$.ajax({
-	       		type: "get",
-	       		data: { id: data.id },
-	       		url: "/course/complete.html",
-	       		success:function(res) {
-	       			if (res == true) {
-	   					tableIns.reload();
-	   	                layer.close(index);
-	   				}else {
-	   					layer.msg(res, {icon: 5,time:1000});
-	   				}
-	       		}
-	       	});
-	     });
+		if(obj.event === 'end'){//结束课程
+			layer.confirm('请确保结束课程前已提交学生成绩！确定结束此课程？', {icon: 3, title: '提示信息'}, function (index) {
+				var data = obj.data;
+				$.ajax({
+					type: "get",
+					data: { id: data.id },
+					url: "/course/complete.html",
+					success:function(res) {
+						if (res == true) {
+							tableIns.reload();
+							layer.close(index);
+						}else {
+							layer.msg(res, {icon: 5,time:1000});
+						}
+					}
+				});
+			});
+		} else if(obj.event === 'revoke'){
+			layer.confirm('撤回课程可能会导致成绩出现变动，请确认是否撤回此课程？', {icon: 3, title: '提示信息'}, function (index) {
+				var data = obj.data;
+				$.ajax({
+					type: "get",
+					data: { id: data.id },
+					url: "/course/revoke.html",
+					success:function(res) {
+						if (res == true) {
+							tableIns.reload();
+							layer.close(index);
+						}else {
+							layer.msg(res, {icon: 5,time:1000});
+						}
+					}
+				});
+			});
+		}else if(obj.event === 'analyse'){//成绩分析
+			var data = obj.data;
+			if(data.complete == 0 || data.complete == "0" ){
+				layer.msg("课程尚未结束，请在结束后查阅", {icon: 5});
+			}
+			var url = "/course/findCourseScoreAnalyse.html";
+			$.ajax({
+				type: "get",
+				data: { courseId: data.id },
+				url: url,
+				dataType : "json",
+				success:function(result) {
+					console.log(result.failed.per)
+					myChart.setOption({        //填入数据
+						/*legend: {
+							data: result.degree
+						},*/
+						series: [{
+							data: (function(){
+								var rs = [];
+								rs.push({
+									name : "不及格(60>成绩)",
+									value: result.failed.personNum
+								});
+								rs.push({
+									name : "及格（70>成绩≥60）",
+									value: result.pass.personNum
+								});
+								rs.push({
+									name : "中等（80>成绩≥70）",
+									value: result.average.personNum
+								});
+								rs.push({
+									name : "良好（90>成绩≥80）",
+									value: result.good.personNum
+								});
+								rs.push({
+									name : "优秀（成绩≥90）",
+									value: result.excellent.personNum
+								});
+								return rs;
+							})()
+						}]
+					});
+					layer.open({
+						title:'该课程最大人数：' + result.courseMaxPerson + ', 报名人数：' + result.signNum,
+						type: 1,
+						shade: false,
+						area: ['620px', '460px'],
+						//点击遮罩关闭
+						shadeClose: false,
+						content: $("#speedChart")
+					});
+				}
+			});
+
+		}
     });
 });
+</script>
+<script type="text/javascript">
+	// 基于准备好的dom，初始化echarts实例
+	var myChart = echarts.init(document.getElementById('speedChartMain'));
+	option = {
+		title : {
+			text: '课程成绩分析',
+			/*subtext: '分析',*/
+			x:'center'
+		},
+		tooltip : {
+			trigger: 'item',
+			formatter: "{a} <br/>{b} : {c} ({d}%)"
+		},
+		legend: {
+			orient: 'vertical',
+			left: 'left',
+			data: ['不及格(60>成绩)','及格（70>成绩≥60）','中等（80>成绩≥70）','良好（90>成绩≥80）','优秀（成绩≥90）']
+		},
+		series : [
+			{
+				name: '占比',
+				type: 'pie',
+				radius : '55%',
+				center: ['50%', '60%'],
+				data:[
+					{value:335, name:'不及格'},
+					{value:310, name:'及格'},
+					{value:234, name:'中等'},
+					{value:135, name:'良好'},
+					{value:1548, name:'优秀'}
+				],
+				itemStyle: {
+					emphasis: {
+						shadowBlur: 10,
+						shadowOffsetX: 0,
+						shadowColor: 'rgba(0, 0, 0, 0.5)'
+					}
+				}
+			}
+		]
+	};
+	// 使用刚指定的配置项和数据显示图表。
+	myChart.setOption(option);
 </script>
 </body>
 </html>

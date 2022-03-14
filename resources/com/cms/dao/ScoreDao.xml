@@ -105,6 +105,33 @@
   	</if>
   </select>
   <!-- 成绩报表end -->
+
+  <select id="getCourseScoreList"  resultMap="ResultMap">
+      SELECT
+          start_date,
+          Stu.id AS stuId,
+          Stu.NAME AS stuName,
+          major,
+          grade,
+          Bc.NAME AS courseName,
+          T.NAME AS teacherName,
+          test_mode,
+          score,
+          result
+      FROM
+          t_score AS Sc,
+          t_course AS C,
+          t_student AS Stu,
+          t_base_course AS Bc,
+          t_teacher AS T
+      WHERE
+          Sc.c_id = C.id
+        AND Sc.s_id = Stu.id
+        AND C.base_course_id = Bc.id
+        AND C.t_id = T.id
+        AND C.complete = 1
+        AND C.id = #{param1,jdbcType=INTEGER}
+  </select>
   
   <select id="getTotalItemsCount"  resultType="java.lang.Integer">
     select count(*) from t_score, t_course as C
@@ -138,8 +165,7 @@
   		limit #{param1.start}, #{param1.pageSize}
   	</if>
   </select>
-  
-  
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_score
     where id = #{id,jdbcType=INTEGER}

@@ -3,6 +3,7 @@
 <mapper namespace="com.cms.dao.CourseDao">
   <resultMap id="BaseResultMap" type="com.cms.entity.Course">
     <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="complete" jdbcType="INTEGER" property="complete" />
     <result column="start_date" jdbcType="DATE" property="startDate" />
     <result column="end_date" jdbcType="DATE" property="endDate" />
     <result column="class_hour" jdbcType="SMALLINT" property="classHour" />
@@ -82,13 +83,22 @@
     and B.complete = 0 
     and  B.t_id = #{id}
   </select>
+
+    <!-- 包含未节课的 -->
+    <select id="getTotalItemsCountByTid2" resultType="java.lang.Integer">
+        select count(*)
+        from t_course as B, t_base_course as A, t_teacher as C
+        where B.base_course_id = A.id and B.t_id = C.id
+          and  B.t_id = #{id}
+    </select>
+
+
   <select id="getCourseListByTid" resultMap="BaseResultMap">
     select 
-    B.id, start_date, end_date, class_hour, test_mode, student_num, choice_num, t_id, base_course_id 
+    B.id, B.complete, start_date, end_date, class_hour, test_mode, student_num, choice_num, t_id, base_course_id
     , A.name as courseName, C.name as teacherName
     from t_course as B, t_base_course as A, t_teacher as C
-    where B.base_course_id = A.id and B.t_id = C.id 
-    and B.complete = 0 
+    where B.base_course_id = A.id and B.t_id = C.id
     and  B.t_id = #{param2}
     <if test="param1 != null">
   		limit #{param1.start}, #{param1.pageSize}

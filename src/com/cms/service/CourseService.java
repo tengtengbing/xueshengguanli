@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.cms.entity.Course;
 import com.cms.utils.page.Pagination;
+import com.cms.vo.CourseScoreAnalyseVO;
 
 public interface CourseService {
 
@@ -21,6 +22,8 @@ public interface CourseService {
 
 	int getTotalItemsCountByTid(String id);
 
+	int getTotalItemsCountByTid2(String id);
+
 	List<Course> getCourseListByTid(Pagination<Course> page, String id);
 
 	int getTotalItemsCountBySid(int isAll, String searchKey, String id);
@@ -29,4 +32,8 @@ public interface CourseService {
                                     String id);
 
 	int completeCourse(Course course);
+
+	int revokeCourse(Course course);
+
+	CourseScoreAnalyseVO findCourseScoreAnalyse(Integer courseId);
 }
